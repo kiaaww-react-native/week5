@@ -1,12 +1,12 @@
 import * as Location from 'expo-location';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
 export default function App() {
-  const [region, setRegion] = useState(null); // To hold the map's region
+  const [region, setRegion] = useState(null); // To hold the map region
   const [markers, setMarkers] = useState([]); // To hold the selected marker's coordinates
-  const mapRef = useRef(null);
+
   // Request user location permission and get current location
   useEffect(() => {
     (async () => {
@@ -26,15 +26,12 @@ export default function App() {
     })();
   }, []);
 
-  // Handle map press to add a marker
-  const handleLongPress = (event) => {
-    const { latitude, longitude } = event.nativeEvent.coordinate;
-
-    console.log("Long press detected at:", latitude, longitude);
-
+  // Handle the long press on the map to add a marker
+  const showMarker = (e) => {
+    const coords = e.nativeEvent.coordinate;
     setMarkers((prevMarkers) => [
       ...prevMarkers,
-      { id: Date.now(), latitude, longitude },
+      { id: Date.now(), latitude: coords.latitude, longitude: coords.longitude }
     ]);
   };
 
@@ -42,12 +39,9 @@ export default function App() {
     <View style={styles.container}>
       {region ? (
         <MapView
-          ref={mapRef}
           style={styles.map}
-          region={region} // Use region to control the map view
-          onRegionChangeComplete={(newRegion) => setRegion(newRegion)}
-          onLongPress={handleLongPress} // Add marker on map press
-          key={markers.length}
+          region={region} 
+          onLongPress={showMarker}
         >
           {markers.map((marker) => (
             <Marker
