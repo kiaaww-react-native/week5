@@ -7,5 +7,7 @@
 
 ## more about
 I had a problem with IOS on the markers when I change them from null to an array in the useState since none of my attempts to fix them worked completely. 
-The markers initially came one state behind do they required me to press long twice before the first one showed on the map. 
+
+The markers initially came one state behind do they required me to press long twice before the first one showed on the map.
+
 I did try and have debugging in the code and it showed that everything worked on the code level with the 1. code I will commit, but for the app to work on my IOS i needed to add a key to get the markers to appear on time, so when pressing for long.
