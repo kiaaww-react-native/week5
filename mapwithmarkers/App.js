@@ -4,10 +4,11 @@ import { Alert, StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
 export default function App() {
-  const [region, setRegion] = useState(null); // To hold the map region
-  const [markers, setMarkers] = useState([]); // To hold the selected marker's coordinates
+  const [initialRegion, setInitialRegion] = useState(null); // Start region (only set once)
+  const [region, setRegion] = useState(null); // Track map movement
+  const [markers, setMarkers] = useState([]); // Store multiple markers
+  const [mapKey, setMapKey] = useState(0);
 
-  // Request user location permission and get current location
   useEffect(() => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -17,31 +18,37 @@ export default function App() {
       }
 
       let location = await Location.getCurrentPositionAsync({});
-      setRegion({
+      const newRegion = {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
         latitudeDelta: 0.01,
         longitudeDelta: 0.01,
-      });
+      };
+      
+      setInitialRegion(newRegion); // Set only once
+      setRegion(newRegion); // Set region so it tracks movement
     })();
   }, []);
 
-  // Handle the long press on the map to add a marker
   const showMarker = (e) => {
     const coords = e.nativeEvent.coordinate;
     setMarkers((prevMarkers) => [
       ...prevMarkers,
       { id: Date.now(), latitude: coords.latitude, longitude: coords.longitude }
     ]);
+     setMapKey((prevKey) => prevKey + 1);
   };
 
   return (
     <View style={styles.container}>
-      {region ? (
+      {initialRegion ? (
         <MapView
+          key={mapKey} 
           style={styles.map}
-          region={region} 
-          onLongPress={showMarker}
+          initialRegion={initialRegion} // Set only once at start
+          region={region} // Track user movement but not force reset
+          onRegionChangeComplete={setRegion} // Update region only when user moves
+          onLongPress={showMarker} // Add marker without affecting region
         >
           {markers.map((marker) => (
             <Marker
